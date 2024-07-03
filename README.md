@@ -26,7 +26,6 @@
 
 - 구글 인증 파일 (json 파일) 필요
 - app.py 실행 (python app.py)
-- app_with_feedback.py 실행
 
 ## 예상 결과물
 
