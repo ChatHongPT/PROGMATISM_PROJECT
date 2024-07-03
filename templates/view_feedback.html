@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Feedback Data</h1>
-    <ul>
-        {% for entry in feedback_data %}
-            <li><strong>Original:</strong> {{ entry.original }} <br><strong>Feedback:</strong> {{ entry.feedback }}</li>
-        {% endfor %}
-    </ul>
-    <a href="/">Go back to Home</a>
+    <div class="container">
+        <h1>Feedback Data</h1>
+        <ul>
+            {% for entry in feedback_data %}
+                <li><strong>Original:</strong> {{ entry.original }} <br><strong>Feedback:</strong> {{ entry.feedback }}</li>
+            {% endfor %}
+        </ul>
+        <a href="/">Go back to Home</a>
+    </div>
 </body>
 </html>

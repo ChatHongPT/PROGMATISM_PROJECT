@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Speech Recognition and Feedback</h1>
-    <button onclick="startRecording()">Start Recording</button>
-    <p><strong>음성 인식 결과:</strong></p>
-    <p id="transcription"></p>
-    <textarea id="feedback" placeholder="Enter the correct transcription"></textarea>
-    <button onclick="submitFeedback()">Submit Feedback</button>
-    <br><br>
-    <a href="/view_feedback">View Feedback</a>
+    <div class="container">
+        <h1>Speech Recognition and Feedback</h1>
+        <button onclick="startRecording()">Start Recording</button>
+        <p><strong>음성 인식 결과:</strong></p>
+        <p id="transcription"></p>
+        <textarea id="feedback" placeholder="Enter the correct transcription"></textarea>
+        <button onclick="submitFeedback()">Submit Feedback</button>
+        <br><br>
+        <a href="/view_feedback">View Feedback</a>
+    </div>
 
     <script>
         let recognition;

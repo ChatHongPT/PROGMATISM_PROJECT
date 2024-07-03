@@ -1,8 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import json
-import os
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__)
 
 # 피드백 데이터를 저장할 리스트
 feedback_data = []
