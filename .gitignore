@@ -9,3 +9,6 @@ feedback_data.json
 
 # output.wav 파일 무시
 output.wav
+
+# speech_recognition_model 디렉토리 무시
+speech_recognition_model
