@@ -24,8 +24,8 @@
 
 ## 실행 방법
 
-구글 key (json 파일) 필요
-app.py 실행 (python app.py)
+- 구글 key (json 파일) 필요
+- app.py 실행 (python app.py)
 
 ## 예상 결과물
 
