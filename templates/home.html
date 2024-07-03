@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Speech Recognition and Feedback</h1>
+    <button onclick="startRecording()">Start Recording</button>
+    <p><strong>음성 인식 결과:</strong></p>
+    <p id="transcription"></p>
+    <textarea id="feedback" placeholder="Enter the correct transcription"></textarea>
+    <button onclick="submitFeedback()">Submit Feedback</button>
+    <br><br>
+    <a href="/view_feedback">View Feedback</a>
+
+    <script>
+        let recognition;
+
+        function startRecording() {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'ko-KR';
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const transcription = event.results[0][0].transcript;
+                document.getElementById('transcription').innerText = transcription;
+            };
+
+            recognition.onerror = function(event) {
+                console.error(event.error);
+            };
+        }
+
+        function submitFeedback() {
+            const originalTranscription = document.getElementById('transcription').innerText;
+            const feedbackTranscription = document.getElementById('feedback').value;
+
+            fetch('/submit_feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    original: originalTranscription,
+                    feedback: feedbackTranscription
+                })
+            }).then(response => response.json())
+              .then(data => alert('Feedback submitted!'))
+              .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

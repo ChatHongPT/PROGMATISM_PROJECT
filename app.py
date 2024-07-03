@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template
 import json
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 
 # 피드백 데이터를 저장할 리스트
 feedback_data = []
@@ -31,7 +32,7 @@ def load_feedback_data():
     try:
         with open('feedback_data.json', 'r', encoding='utf-8') as f:
             feedback_data = json.load(f)
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError):
         feedback_data = []
 
 @app.route('/feedback', methods=['GET'])
@@ -41,87 +42,11 @@ def get_feedback():
 @app.route('/view_feedback', methods=['GET'])
 def view_feedback():
     load_feedback_data()  # Load feedback data from the file
-    feedback_html = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Feedback Data</title>
-    </head>
-    <body>
-        <h1>Feedback Data</h1>
-        <ul>
-            {% for entry in feedback_data %}
-                <li><strong>Original:</strong> {{ entry.original }} <br><strong>Feedback:</strong> {{ entry.feedback }}</li>
-            {% endfor %}
-        </ul>
-        <a href="/">Go back to Home</a>
-    </body>
-    </html>
-    """
-    return render_template_string(feedback_html, feedback_data=feedback_data)
+    return render_template('view_feedback.html', feedback_data=feedback_data)
 
 @app.route('/')
 def home():
-    home_html = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Home</title>
-    </head>
-    <body>
-        <h1>Speech Recognition and Feedback</h1>
-        <button onclick="startRecording()">Start Recording</button>
-        <p><strong>음성 인식 결과:</strong></p>
-        <p id="transcription"></p>
-        <textarea id="feedback" placeholder="Enter the correct transcription"></textarea>
-        <button onclick="submitFeedback()">Submit Feedback</button>
-        <br><br>
-        <a href="/view_feedback">View Feedback</a>
-
-        <script>
-            let recognition;
-
-            function startRecording() {
-                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-                recognition.lang = 'ko-KR';
-                recognition.start();
-
-                recognition.onresult = function(event) {
-                    const transcription = event.results[0][0].transcript;
-                    document.getElementById('transcription').innerText = transcription;
-                };
-
-                recognition.onerror = function(event) {
-                    console.error(event.error);
-                };
-            }
-
-            function submitFeedback() {
-                const originalTranscription = document.getElementById('transcription').innerText;
-                const feedbackTranscription = document.getElementById('feedback').value;
-
-                fetch('/submit_feedback', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        original: originalTranscription,
-                        feedback: feedbackTranscription
-                    })
-                }).then(response => response.json())
-                  .then(data => alert('Feedback submitted!'))
-                  .catch(error => console.error('Error:', error));
-            }
-        </script>
-    </body>
-    </html>
-    """
-    return render_template_string(home_html)
+    return render_template('home.html')
 
 if __name__ == '__main__':
     load_feedback_data()  # Load feedback data on server start

@@ -1,18 +1,6 @@
 [
     {
-        "original": "하이",
-        "feedback": "하이"
-    },
-    {
-        "original": "안녕하세요",
-        "feedback": "하세요 "
-    },
-    {
-        "original": "안녕하세요",
-        "feedback": "안녕하세요"
-    },
-    {
-        "original": "안녕하세요",
-        "feedback": "안녕하세요"
+        "original": "안녕",
+        "feedback": "안녕"
     }
 ]

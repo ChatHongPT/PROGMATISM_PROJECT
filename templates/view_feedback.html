@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Data</title>
+</head>
+<body>
+    <h1>Feedback Data</h1>
+    <ul>
+        {% for entry in feedback_data %}
+            <li><strong>Original:</strong> {{ entry.original }} <br><strong>Feedback:</strong> {{ entry.feedback }}</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Go back to Home</a>
+</body>
+</html>
