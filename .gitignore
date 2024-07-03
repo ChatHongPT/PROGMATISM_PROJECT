@@ -15,3 +15,6 @@ speech_recognition_model.h5
 
 # tempCodeRunnerFile.py 파일 무시
 tempCodeRunnerFile.py
+
+# speech_recognition_model.keras 파일 무시
+speech_recognition_model.keras
