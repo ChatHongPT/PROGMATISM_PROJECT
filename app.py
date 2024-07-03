@@ -1,66 +1,128 @@
-import io
-import os
-import pyaudio
-import wave
-from google.cloud import speech_v1 as speech
+from flask import Flask, request, jsonify, render_template_string
+import json
 
-# Google Cloud 인증 정보 설정 (환경 변수 설정)
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "file.json" # "file.json"은 사용자가 발급받은 인증 정보 파일
+app = Flask(__name__)
 
-# Google Cloud Speech-to-Text 클라이언트 설정
-client = speech.SpeechClient()
+# 피드백 데이터를 저장할 리스트
+feedback_data = []
 
-# 음성 녹음 설정
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 16000
-CHUNK = 1024
-RECORD_SECONDS = 5
-WAVE_OUTPUT_FILENAME = "output.wav"
+@app.route('/submit_feedback', methods=['POST'])
+def submit_feedback():
+    data = request.get_json()
+    original = data.get('original')
+    feedback = data.get('feedback')
 
-audio = pyaudio.PyAudio()
+    # 피드백 데이터를 리스트에 추가
+    feedback_entry = {
+        'original': original,
+        'feedback': feedback
+    }
+    feedback_data.append(feedback_entry)
+    save_feedback_data()
 
-# 음성 녹음 시작
-stream = audio.open(format=FORMAT, channels=CHANNELS,
-                    rate=RATE, input=True,
-                    frames_per_buffer=CHUNK)
-print("Recording...")
-frames = []
+    return jsonify({'status': 'success'}), 200
 
-for _ in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-    data = stream.read(CHUNK)
-    frames.append(data)
-print("Recording finished")
+def save_feedback_data():
+    with open('feedback_data.json', 'w', encoding='utf-8') as f:
+        json.dump(feedback_data, f, ensure_ascii=False, indent=4)
 
-# 녹음 종료
-stream.stop_stream()
-stream.close()
-audio.terminate()
+def load_feedback_data():
+    global feedback_data
+    try:
+        with open('feedback_data.json', 'r', encoding='utf-8') as f:
+            feedback_data = json.load(f)
+    except FileNotFoundError:
+        feedback_data = []
 
-# 녹음 파일 저장
-waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-waveFile.setnchannels(CHANNELS)
-waveFile.setsampwidth(audio.get_sample_size(FORMAT))
-waveFile.setframerate(RATE)
-waveFile.writeframes(b''.join(frames))
-waveFile.close()
+@app.route('/feedback', methods=['GET'])
+def get_feedback():
+    return jsonify(feedback_data), 200
 
-# 음성 파일을 Google Speech-to-Text API로 전송
-def transcribe_speech(file_path):
-    with io.open(file_path, "rb") as audio_file:
-        content = audio_file.read()
+@app.route('/view_feedback', methods=['GET'])
+def view_feedback():
+    load_feedback_data()  # Load feedback data from the file
+    feedback_html = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Feedback Data</title>
+    </head>
+    <body>
+        <h1>Feedback Data</h1>
+        <ul>
+            {% for entry in feedback_data %}
+                <li><strong>Original:</strong> {{ entry.original }} <br><strong>Feedback:</strong> {{ entry.feedback }}</li>
+            {% endfor %}
+        </ul>
+        <a href="/">Go back to Home</a>
+    </body>
+    </html>
+    """
+    return render_template_string(feedback_html, feedback_data=feedback_data)
 
-    audio = speech.RecognitionAudio(content=content)
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=RATE,
-        language_code="ko-KR",
-    )
+@app.route('/')
+def home():
+    home_html = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Home</title>
+    </head>
+    <body>
+        <h1>Speech Recognition and Feedback</h1>
+        <button onclick="startRecording()">Start Recording</button>
+        <p><strong>음성 인식 결과:</strong></p>
+        <p id="transcription"></p>
+        <textarea id="feedback" placeholder="Enter the correct transcription"></textarea>
+        <button onclick="submitFeedback()">Submit Feedback</button>
+        <br><br>
+        <a href="/view_feedback">View Feedback</a>
 
-    response = client.recognize(config=config, audio=audio)
+        <script>
+            let recognition;
 
-    for result in response.results:
-        print("Transcript: {}".format(result.alternatives[0].transcript))
+            function startRecording() {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = 'ko-KR';
+                recognition.start();
 
-# 음성 인식 수행
-transcribe_speech(WAVE_OUTPUT_FILENAME)
+                recognition.onresult = function(event) {
+                    const transcription = event.results[0][0].transcript;
+                    document.getElementById('transcription').innerText = transcription;
+                };
+
+                recognition.onerror = function(event) {
+                    console.error(event.error);
+                };
+            }
+
+            function submitFeedback() {
+                const originalTranscription = document.getElementById('transcription').innerText;
+                const feedbackTranscription = document.getElementById('feedback').value;
+
+                fetch('/submit_feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        original: originalTranscription,
+                        feedback: feedbackTranscription
+                    })
+                }).then(response => response.json())
+                  .then(data => alert('Feedback submitted!'))
+                  .catch(error => console.error('Error:', error));
+            }
+        </script>
+    </body>
+    </html>
+    """
+    return render_template_string(home_html)
+
+if __name__ == '__main__':
+    load_feedback_data()  # Load feedback data on server start
+    app.run(debug=True)
