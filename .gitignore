@@ -12,3 +12,6 @@ output.wav
 
 # speech_recognition_model.h5 파일 무시
 speech_recognition_model.h5
+
+# tempCodeRunnerFile.py 파일 무시
+tempCodeRunnerFile.py
