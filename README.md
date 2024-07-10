@@ -1,47 +1,65 @@
-# 2024 장애플러스 기술 해커톤 프로젝트(PROGMATISM PROJECT)
-![20240408000212_b17e2dd5](https://github.com/ChatHongPT/Progmatism-Project/assets/129854575/65a67148-d7b5-4856-b96e-8237a3e30c4d)
+# 맞춤형 음성 인식 시스템
 
-## 프로젝트 개요
-뇌성마비 환자들의 발음 특성을 고려한 개인화된 음성 인식 프로그램을 개발하여, 기존 방식의 문제점을 해결하고 뇌성마비 환자들의 의사소통과 생활 편의성을 향상
+이 프로젝트는 특정 문구를 인식하는 맞춤형 음성 인식 시스템입니다.
 
-### 프로젝트 매니저 (PM)
-- **홍건하** (전북대학교)
-  
-### 팀원
-- **배대한** (원광대학교)
-- **최홍석** (전북대학교)
-- **김미르** (인하대학교)
+## 프로젝트 구조
 
-## To Do List
+```plaintext
+progmatism-project/
+│
+├── data/                       # 녹음된 오디오 데이터를 저장하는 디렉토리
+│   ├── 안녕하세요/               # '안녕하세요' 녹음을 위한 서브디렉토리
+│   ├── 감사합니다/               # '감사합니다' 녹음을 위한 서브디렉토리
+│   ├── 네/                      # '네' 녹음을 위한 서브디렉토리
+│   └── 아니요/                  # '아니요' 녹음을 위한 서브디렉토리
+│
+├── models/                     # 학습된 모델을 저장하는 디렉토리
+│   ├── personalized_speech_recognition_model.keras
+│   └── label_encoder.pkl
+│
+├── .gitignore                  # Git에서 제외할 파일들을 지정하는 파일
+├── app.py                      # 예측 요청을 처리하는 Flask 서버 파일
+├── client.py                   # 오디오를 녹음하고 예측을 요청하는 클라이언트 파일
+├── data_preprocessing.py       # 오디오 데이터를 전처리하는 스크립트
+├── extract_features.py         # 오디오 파일에서 MFCC 특징을 추출하는 스크립트
+├── record_audio_batch.py       # 오디오 파일을 일괄 녹음하는 스크립트
+├── record_audio.py             # 단일 오디오 파일을 녹음하는 스크립트
+├── retrain_model.py            # 새로운 데이터로 모델을 재학습하는 스크립트
+├── speech_model.py             # 음성 인식 모델을 정의하는 스크립트
+└── test_predict.py             # 예측을 테스트하는 스크립트
+```
 
-- **홍건하** -> google speech to text 조사 및 커스텀
+## 사용 방법
 
-- **배대한** -> google speech to text 조사 및 커스텀
+1. **오디오 데이터 녹음**:
+   "안녕하세요", "감사합니다", "네", "아니요" 문구에 대한 오디오 데이터를 녹음합니다.
+   ```bash
+   python record_audio_batch.py
 
-- **김미르** -> google speech to text 조사 및 커스텀
+2. **모델 재학습**:
+   "녹음한 새로운 데이터로 모델을 재학습합니다..
+   ```bash
+   python retrain_model.py
 
-- **최홍석** -> APP 개발 및 디자인
+3. **Flask 서버 실행:**:
+   "예측 요청을 처리하는 Flask 서버를 시작합니다...
+   ```bash
+   python app.py
 
-## 실행 방법
-
-- 구글 인증 파일 (json 파일) 필요
-- app.py 실행 (python app.py)
-
-## 예상 결과물
-
-![KakaoTalk_Photo_2024-06-28-20-53-57](https://github.com/ChatHongPT/Progmatism-Project/assets/129854575/8fb978bf-eb0d-4086-b8cb-feba938e69e0)
-
-- 개인화된 발음 특성 분석: 사용자 개인의 발음 특성을 분석하여 개인화된 음성 인식 모델을 생성. 
-
-![KakaoTalk_Photo_2024-06-28-20-53-57](https://github.com/ChatHongPT/Progmatism-Project/assets/129854575/d4b53c2a-5301-4c08-a17e-2e9d0533e3dd)
-
-- 음성 인식 및 텍스트 변환: 사용자가 말한 내용을 인식하고 텍스트로 변환하여 화면에 표시.
-  
-<img width="211" alt="KakaoTalk_Photo_2024-06-28-20-54-05" src="https://github.com/ChatHongPT/Progmatism-Project/assets/129854575/17ba7781-151e-4437-908d-a9b9fb959c0e">
-
-- 의사소통 템플릿: 자주 사용하는 문장 및 표현을 템플릿으로 저장하여 원활한 의사소통에 도움.
+4. **예측 요청:**:
+   "오디오 샘플을 녹음하고 서버에 예측을 요청합니다....
+   ```bash
+   python client.py
 
 
+## 요구 사항
+- Python 3.x
+- 필요한 Python 패키지는 requirements.txt에 나열되어 있습니다.
 
+## 설치 방법
+1. **리포지토리를 클론합니다**:
+git clone <your-repository-url>
+cd your_project
 
-  
+2. **필요한 패키지를 설치합니다**:
+pip install -r requirements.txt

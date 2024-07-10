@@ -1,52 +1,24 @@
-from flask import Flask, request, jsonify, render_template
-import json
+from flask import Flask, request, jsonify
+import numpy as np
+import tensorflow as tf
+import pickle
 
 app = Flask(__name__)
 
-# 피드백 데이터를 저장할 리스트
-feedback_data = []
+# 저장된 모델 로드 (최신 Keras 형식 사용)
+model = tf.keras.models.load_model("personalized_speech_recognition_model.keras")
 
-@app.route('/submit_feedback', methods=['POST'])
-def submit_feedback():
-    data = request.get_json()
-    original = data.get('original')
-    feedback = data.get('feedback')
+# Label encoder 로드
+with open('label_encoder.pkl', 'rb') as f:
+    label_encoder = pickle.load(f)
 
-    # 피드백 데이터를 리스트에 추가
-    feedback_entry = {
-        'original': original,
-        'feedback': feedback
-    }
-    feedback_data.append(feedback_entry)
-    save_feedback_data()
-
-    return jsonify({'status': 'success'}), 200
-
-def save_feedback_data():
-    with open('feedback_data.json', 'w', encoding='utf-8') as f:
-        json.dump(feedback_data, f, ensure_ascii=False, indent=4)
-
-def load_feedback_data():
-    global feedback_data
-    try:
-        with open('feedback_data.json', 'r', encoding='utf-8') as f:
-            feedback_data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        feedback_data = []
-
-@app.route('/feedback', methods=['GET'])
-def get_feedback():
-    return jsonify(feedback_data), 200
-
-@app.route('/view_feedback', methods=['GET'])
-def view_feedback():
-    load_feedback_data()  # Load feedback data from the file
-    return render_template('view_feedback.html', feedback_data=feedback_data)
-
-@app.route('/')
-def home():
-    return render_template('home.html')
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.get_json(force=True)
+    mfccs = np.array(data['mfccs']).reshape(1, -1, 1)
+    prediction = model.predict(mfccs)
+    predicted_label = label_encoder.inverse_transform(np.argmax(prediction, axis=1))
+    return jsonify({'prediction': predicted_label.tolist()})
 
 if __name__ == '__main__':
-    load_feedback_data()  # Load feedback data on server start
     app.run(debug=True)
