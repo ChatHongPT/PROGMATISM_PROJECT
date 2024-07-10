@@ -12,7 +12,7 @@ filename_prefix = "data"
 duration = 2  # 녹음 시간 (초)
 device_index = None  # 사용할 입력 장치의 인덱스 (list_audio_devices.py로 확인 가능)
 
-print("Please say: '안녕하세요'")
+print("Please say something: ex) '안녕하세요'")
 filename = record_audio(filename_prefix, duration, device_index=device_index)
 
 # MFCC 특징 추출

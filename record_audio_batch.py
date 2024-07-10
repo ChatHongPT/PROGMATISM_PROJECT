@@ -8,19 +8,19 @@ def record_audio_batch(base_dir="data", duration=2, sample_rate=44100, chunk=102
     os.makedirs(base_dir, exist_ok=True)
 
     label_map = {
-        "1": "안녕하세요",
-        "2": "감사합니다",
-        "3": "네",
-        "4": "아니요"
+        "0": "안녕하세요",
+        "1": "감사합니다",
+        "2": "네",
+        "3": "아니요"
     }
 
     while True:
         print("Press the number corresponding to the label you want to record:")
-        print("1: 안녕하세요, 2: 감사합니다, 3: 네, 4: 아니요")
+        print("0: 안녕하세요, 1: 감사합니다, 2: 네, 3: 아니요")
         label_key = input("Enter the number: ")
         
         if label_key not in label_map:
-            print("Invalid input. Please enter a number between 1 and 4.")
+            print("Invalid input. Please enter a number between 0 and 3.")
             continue
 
         label = label_map[label_key]
