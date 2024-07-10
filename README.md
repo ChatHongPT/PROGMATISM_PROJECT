@@ -7,10 +7,10 @@
 ```plaintext
 progmatism-project/
 │
-├── data/                       # 녹음된 오디오 데이터를 저장하는 디렉토리
+├── data/                      # 녹음된 오디오 데이터를 저장하는 디렉토리
 │   ├── 안녕하세요/               # '안녕하세요' 녹음을 위한 서브디렉토리
 │   ├── 감사합니다/               # '감사합니다' 녹음을 위한 서브디렉토리
-│   ├── 네/                      # '네' 녹음을 위한 서브디렉토리
+│   ├── 네/                     # '네' 녹음을 위한 서브디렉토리
 │   └── 아니요/                  # '아니요' 녹음을 위한 서브디렉토리
 │
 ├── models/                     # 학습된 모델을 저장하는 디렉토리
@@ -58,8 +58,8 @@ progmatism-project/
 
 ## 설치 방법
 1. **리포지토리를 클론합니다**:
-git clone <your-repository-url>
-cd your_project
+- git clone <your-repository-url>
+- cd your_project
 
 2. **필요한 패키지를 설치합니다**:
-pip install -r requirements.txt
+- pip install -r requirements.txt
