@@ -18,7 +18,15 @@ def predict():
     mfccs = np.array(data['mfccs']).reshape(1, -1, 1)
     prediction = model.predict(mfccs)
     predicted_label = label_encoder.inverse_transform(np.argmax(prediction, axis=1))
-    return jsonify({'prediction': predicted_label.tolist()})
+
+    # 각 단어의 확률 계산
+    probabilities = prediction[0]
+    probabilities_dict = {str(label_encoder.inverse_transform([i])[0]): float(prob) for i, prob in enumerate(probabilities)}
+
+    return jsonify({
+        'prediction': predicted_label.tolist(),
+        'probabilities': probabilities_dict
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

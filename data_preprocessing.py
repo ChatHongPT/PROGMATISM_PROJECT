@@ -9,9 +9,22 @@ def extract_features(file_name):
     return np.mean(mfccs.T, axis=0)
 
 def augment_audio(audio, sample_rate):
+    augmented_audios = []
+    
+    # 노이즈 추가
     noise_amp = 0.005 * np.random.uniform() * np.amax(audio)
-    audio = audio + noise_amp * np.random.normal(size=audio.shape)
-    return audio
+    audio_with_noise = audio + noise_amp * np.random.normal(size=audio.shape)
+    augmented_audios.append(audio_with_noise)
+    
+    # 시간 축소 및 확대
+    time_stretch = librosa.effects.time_stretch(audio, rate=np.random.uniform(0.8, 1.2))
+    augmented_audios.append(time_stretch)
+    
+    # 피치 변화
+    pitch_shift = librosa.effects.pitch_shift(audio, sr=sample_rate, n_steps=np.random.randint(-5, 5))
+    augmented_audios.append(pitch_shift)
+    
+    return augmented_audios
 
 def load_data(data_path):
     features = []
@@ -31,10 +44,11 @@ def load_data(data_path):
                     labels.append(label_map[label])
 
                     # 증강 데이터 추가
-                    augmented_audio = augment_audio(audio, sample_rate)
-                    mfccs = librosa.feature.mfcc(y=augmented_audio, sr=sample_rate, n_mfcc=40)
-                    features.append(np.mean(mfccs.T, axis=0))
-                    labels.append(label_map[label])
+                    augmented_audios = augment_audio(audio, sample_rate)
+                    for augmented_audio in augmented_audios:
+                        mfccs = librosa.feature.mfcc(y=augmented_audio, sr=sample_rate, n_mfcc=40)
+                        features.append(np.mean(mfccs.T, axis=0))
+                        labels.append(label_map[label])
                 except Exception as e:
                     print(f"Error processing file {file_path}: {e}")
 
