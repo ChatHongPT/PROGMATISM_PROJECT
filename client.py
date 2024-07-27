@@ -47,9 +47,6 @@ def send_request(mfccs):
 # 녹음 시작
 audio = record_audio()
 
-# 파일로 저장 (선택 사항)
-wav.write("sample.wav", SAMPLE_RATE, audio)
-
 # MFCC 추출
 mfccs = extract_mfcc(audio, SAMPLE_RATE)
 

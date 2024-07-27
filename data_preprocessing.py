@@ -3,10 +3,14 @@ import numpy as np
 import os
 from sklearn.preprocessing import LabelEncoder
 
-def extract_features(file_name):
-    audio, sample_rate = librosa.load(file_name, res_type='kaiser_fast')
-    mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
-    return np.mean(mfccs.T, axis=0)
+def extract_mfcc(audio, sample_rate, n_mfcc=40, max_length=200):
+    mfcc = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=n_mfcc)
+    if mfcc.shape[1] > max_length:
+        mfcc = mfcc[:, :max_length]
+    else:
+        pad_width = max_length - mfcc.shape[1]
+        mfcc = np.pad(mfcc, pad_width=((0, 0), (0, pad_width)), mode='constant')
+    return np.mean(mfcc.T, axis=0)
 
 def augment_audio(audio, sample_rate):
     augmented_audios = []
@@ -26,7 +30,7 @@ def augment_audio(audio, sample_rate):
     
     return augmented_audios
 
-def load_data(data_path):
+def load_data(data_path, n_mfcc=40, max_length=200):
     features = []
     labels = []
     label_map = {"안녕하세요": 0, "감사합니다": 1, "네": 2, "아니요": 3}
@@ -39,15 +43,15 @@ def load_data(data_path):
                 print(f"Processing file: {file_path}")
                 try:
                     audio, sample_rate = librosa.load(file_path, res_type='kaiser_fast')
-                    mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
-                    features.append(np.mean(mfccs.T, axis=0))
+                    mfcc = extract_mfcc(audio, sample_rate, n_mfcc, max_length)
+                    features.append(mfcc)
                     labels.append(label_map[label])
 
                     # 증강 데이터 추가
                     augmented_audios = augment_audio(audio, sample_rate)
                     for augmented_audio in augmented_audios:
-                        mfccs = librosa.feature.mfcc(y=augmented_audio, sr=sample_rate, n_mfcc=40)
-                        features.append(np.mean(mfccs.T, axis=0))
+                        mfcc = extract_mfcc(augmented_audio, sample_rate, n_mfcc, max_length)
+                        features.append(mfcc)
                         labels.append(label_map[label])
                 except Exception as e:
                     print(f"Error processing file {file_path}: {e}")
