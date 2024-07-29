@@ -15,9 +15,7 @@ def record_audio_batch(base_dir="data", duration=2, sample_rate=44100, chunk=102
     }
 
     while True:
-        print("Press the number corresponding to the label you want to record:")
-        print("0: 안녕하세요, 1: 감사합니다, 2: 네, 3: 아니요")
-        label_key = input("Enter the number: ")
+        label_key = input("Enter the number (0: 안녕하세요, 1: 감사합니다, 2: 네, 3: 아니요): ")
         
         if label_key not in label_map:
             print("Invalid input. Please enter a number between 0 and 3.")
@@ -27,44 +25,30 @@ def record_audio_batch(base_dir="data", duration=2, sample_rate=44100, chunk=102
         label_dir = os.path.join(base_dir, label)
         os.makedirs(label_dir, exist_ok=True)
 
-        stream = audio.open(format=pyaudio.paInt16,
-                            channels=channels,
-                            rate=sample_rate,
-                            input=True,
-                            input_device_index=device_index,
-                            frames_per_buffer=chunk)
+        stream = audio.open(format=pyaudio.paInt16, channels=channels, rate=sample_rate,
+                            input=True, input_device_index=device_index, frames_per_buffer=chunk)
 
         print(f"Recording for label '{label}'...")
-        frames = []
-
-        for _ in range(0, int(sample_rate / chunk * duration)):
-            data = stream.read(chunk)
-            frames.append(data)
-
+        frames = [stream.read(chunk) for _ in range(0, int(sample_rate / chunk * duration))]
         print("Recording finished.")
+
         stream.stop_stream()
         stream.close()
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{label_dir}/{label}_{timestamp}.wav"
+        filename = os.path.join(label_dir, f"{label}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav")
         
-        wf = wave.open(filename, 'wb')
-        wf.setnchannels(channels)
-        wf.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-        wf.setframerate(sample_rate)
-        wf.writeframes(b''.join(frames))
-        wf.close()
+        with wave.open(filename, 'wb') as wf:
+            wf.setnchannels(channels)
+            wf.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
+            wf.setframerate(sample_rate)
+            wf.writeframes(b''.join(frames))
 
         print(f"Saved recording to {filename}")
 
-        cont = input("Continue recording? (y/n): ")
-        if cont.lower() != 'y':
+        if input("Continue recording? (y/n): ").lower() != 'y':
             break
 
     audio.terminate()
 
 if __name__ == "__main__":
-    base_dir = "data"
-    duration = 2
-    device_index = None
-    record_audio_batch(base_dir, duration, device_index=device_index)
+    record_audio_batch()
