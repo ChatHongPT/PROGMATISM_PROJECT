@@ -1,7 +1,0 @@
-librosa
-pyaudio
-tensorflow
-flask
-resampy
-numpy
-scikit-learn
