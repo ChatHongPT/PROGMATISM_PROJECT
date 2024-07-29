@@ -12,7 +12,7 @@ def extract_features(file_name):
     mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
     return np.mean(mfccs.T, axis=0)
 
-def load_data_from_directory(base_directory):
+def load_data_from_directory(base_directory, label_order):
     print(f"Loading data from directory: {base_directory}")
     features = []
     labels = []
@@ -28,13 +28,16 @@ def load_data_from_directory(base_directory):
     print(f"Loaded labels: {set(labels)}")
     return np.array(features), np.array(labels)
 
-def train_and_save_model(base_directory, model_path, encoder_path):
-    features, labels = load_data_from_directory(base_directory)
+def train_and_save_model(base_directory, model_path, encoder_path, label_order):
+    features, labels = load_data_from_directory(base_directory, label_order)
     
     print("Starting model training...")
     le = LabelEncoder()
-    y_encoded = le.fit_transform(labels)
+    le.fit(label_order)  # 명시적인 라벨 순서 설정
+    y_encoded = le.transform(labels)
     print(f"Encoded labels: {set(y_encoded)}")
+
+    print(f"Label order: {label_order}")  # 라벨 순서 출력
 
     X_train, X_test, y_train, y_test = train_test_split(features, y_encoded, test_size=0.2, random_state=42)
 
@@ -56,4 +59,5 @@ if __name__ == "__main__":
     base_directory = 'data'  # 음성 파일이 저장된 기본 디렉토리 경로
     model_path = 'knn_model.pkl'
     encoder_path = 'label_encoder.pkl'
-    train_and_save_model(base_directory, model_path, encoder_path)
+    label_order = ["감사합니다", "네", "아니요", "안녕하세요"]
+    train_and_save_model(base_directory, model_path, encoder_path, label_order)
