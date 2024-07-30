@@ -44,4 +44,4 @@ for test_file in test_files:
     predicted_word, probabilities = predict_word(file_path)
     print(f'파일: "{test_file}"의 예측된 단어: {predicted_word}')
     for word, prob in zip(model.classes_, probabilities[0]):
-        print(f'    단어: {word}, 확률: {prob:.2f}')
+        print(f'    단어: "{word}" 확률: {prob * 100:.2f}%')
